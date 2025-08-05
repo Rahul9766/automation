@@ -27,30 +27,33 @@ public class PowerShellService
 
         // Build the PowerShell script based on the reference script
         var scriptBuilder = new System.Text.StringBuilder();
-        scriptBuilder.AppendLine("$results = @()");
-        
+        scriptBuilder.AppendLine("$serversAndServices = @{");
         foreach (var server in serversAndServices.Keys)
         {
-            foreach (var service in serversAndServices[server])
-            {
-                scriptBuilder.AppendLine($"try {{");
-                scriptBuilder.AppendLine($"    $svc = Get-Service -ComputerName '{server}' -Name '{service}' -ErrorAction Stop");
-                scriptBuilder.AppendLine($"    $results += [PSCustomObject]@{{");
-                scriptBuilder.AppendLine($"        Server = '{server}'");
-                scriptBuilder.AppendLine($"        Service = '{service}'");
-                scriptBuilder.AppendLine($"        Status = $svc.Status.ToString()");
-                scriptBuilder.AppendLine($"    }}");
-                scriptBuilder.AppendLine($"}}");
-                scriptBuilder.AppendLine($"catch {{");
-                scriptBuilder.AppendLine($"    $results += [PSCustomObject]@{{");
-                scriptBuilder.AppendLine($"        Server = '{server}'");
-                scriptBuilder.AppendLine($"        Service = '{service}'");
-                scriptBuilder.AppendLine($"        Status = 'NotFound'");
-                scriptBuilder.AppendLine($"    }}");
-                scriptBuilder.AppendLine($"}}");
-            }
+            var servicesArray = string.Join(",", serversAndServices[server].Select(s => $"'{s}'"));
+            scriptBuilder.AppendLine($"    '{server}' = @({servicesArray})");
         }
-        
+        scriptBuilder.AppendLine("}");
+        scriptBuilder.AppendLine("$results = @()");
+        scriptBuilder.AppendLine("foreach ($server in $serversAndServices.Keys) {");
+        scriptBuilder.AppendLine("    foreach ($service in $serversAndServices[$server]) {");
+        scriptBuilder.AppendLine("        try {");
+        scriptBuilder.AppendLine("            $svc = Get-Service -ComputerName $server -Name $service -ErrorAction Stop");
+        scriptBuilder.AppendLine("            $results += [PSCustomObject]@{");
+        scriptBuilder.AppendLine("                Server = $server");
+        scriptBuilder.AppendLine("                Service = $service");
+        scriptBuilder.AppendLine("                Status = $svc.Status.ToString()");
+        scriptBuilder.AppendLine("            }");
+        scriptBuilder.AppendLine("        }");
+        scriptBuilder.AppendLine("        catch {");
+        scriptBuilder.AppendLine("            $results += [PSCustomObject]@{");
+        scriptBuilder.AppendLine("                Server = $server");
+        scriptBuilder.AppendLine("                Service = $service");
+        scriptBuilder.AppendLine("                Status = 'NotFound'");
+        scriptBuilder.AppendLine("            }");
+        scriptBuilder.AppendLine("        }");
+        scriptBuilder.AppendLine("    }");
+        scriptBuilder.AppendLine("}");
         scriptBuilder.AppendLine("$results | ConvertTo-Json -Depth 2");
 
         try
@@ -142,4 +145,4 @@ public class ServiceStatus
     public string Server { get; set; } = "";
     public string Service { get; set; } = "";
     public string Status { get; set; } = "";
-} 
+}
