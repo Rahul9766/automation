@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PowerShellWebApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f9053888d4ef1319c2ceddc67552b927e71dd48")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d9a3cbf6dca6424e176f9a39394df95c88d91bf5")]
 [assembly: System.Reflection.AssemblyProductAttribute("PowerShellWebApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PowerShellWebApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
