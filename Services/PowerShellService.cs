@@ -11,7 +11,8 @@ public class PowerShellService
         // Sample data - you can modify this or load from configuration
         var serversAndServices = new Dictionary<string, string[]>
         {
-            { "DESKTOP-CH5B0I4", new[] { "AsusAppService" } }
+            { "DESKTOP-CH5B0I4", new[] { "AsusAppService" } },
+            { "localhost", new[] { "Spooler", "Themes" } }
         };
 
         // Use PowerShell command for service status
@@ -30,11 +31,11 @@ public class PowerShellService
             {
                 try
                 {
-                    // Use PowerShell to get service status
+                    // Use PowerShell to get service status on remote server
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = "powershell.exe",
-                        Arguments = $"-ExecutionPolicy Bypass -Command \"Get-Service -Name '{service}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status\"",
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"Get-Service -ComputerName '{server}' -Name '{service}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status\"",
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
