@@ -11,8 +11,7 @@ public class PowerShellService
         // Sample data - you can modify this or load from configuration
         var serversAndServices = new Dictionary<string, string[]>
         {
-            { "DESKTOP-CH5B0I4", new[] { "AsusAppService" } },
-            { "localhost", new[] { "Spooler", "Themes" } }
+            { "localhost", new[] { "Spooler", "Themes", "AsusAppService" } }
         };
 
         // Use PowerShell command for service status
@@ -31,11 +30,11 @@ public class PowerShellService
             {
                 try
                 {
-                    // Use PowerShell to get service status on remote server
+                    // Use PowerShell to get service status
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = "powershell.exe",
-                        Arguments = $"-ExecutionPolicy Bypass -Command \"Get-Service -ComputerName '{server}' -Name '{service}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status\"",
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"Get-Service -Name '{service}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status\"",
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
@@ -46,7 +45,8 @@ public class PowerShellService
                     process.Start();
                     
                     // Add timeout to prevent hanging
-                    if (!process.WaitForExit(5000)) // 5 second timeout
+                    var timeout = 3000; // 3 second timeout
+                    if (!process.WaitForExit(timeout))
                     {
                         try { process.Kill(); } catch { }
                         results.Add(new ServiceStatus
@@ -59,12 +59,22 @@ public class PowerShellService
                     }
                     
                     var output = process.StandardOutput.ReadToEnd().Trim();
+                    var error = process.StandardError.ReadToEnd().Trim();
                     var status = "NotFound";
+                    
+                    // Debug logging
+                    Console.WriteLine($"Server: {server}, Service: {service}, Output: '{output}', Error: '{error}'");
                     
                     if (!string.IsNullOrEmpty(output))
                     {
                         // The output should be the direct status value
                         status = output;
+                    }
+                    else if (!string.IsNullOrEmpty(error))
+                    {
+                        // If there's an error, log it
+                        Console.WriteLine($"PowerShell error for {service} on {server}: {error}");
+                        status = "Error";
                     }
 
                     results.Add(new ServiceStatus
@@ -74,13 +84,15 @@ public class PowerShellService
                         Status = status
                     });
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // Log the error for debugging
+                    Console.WriteLine($"Error checking service {service} on {server}: {ex.Message}");
                     results.Add(new ServiceStatus
                     {
                         Server = server,
                         Service = service,
-                        Status = "NotFound"
+                        Status = "Error"
                     });
                 }
             }
