@@ -1,184 +1,52 @@
-# Azure Server Manager
+# PowerShell Web Application
 
-A standalone web application for Azure Windows Server service control and file operations.
+A simple .NET 8 web application that executes PowerShell scripts and displays the results in a browser.
 
-## 🚀 Features
+## Features
 
-### Service Management
-- Display list of servers with their services
-- Real-time service status monitoring (auto-refresh every 2 seconds)
-- Individual service control (Start, Stop, Restart)
-- Visual status indicators with color coding
+- Executes the `Check-ServiceStatus.ps1` PowerShell script
+- Displays service status for configured servers
+- Auto-refreshes every 10 seconds
+- Clean, responsive web interface
 
-### Indexing Section
-- Bulk operations for indexing servers
-- Start/Stop all services across all indexing servers
-- Separate server list for indexing operations
+## Prerequisites
 
-### ThinClient Down Section
-- File rename operations on remote servers
-- Forward operation: `default.html` → `temp.html`, `backup.html` → `default.html`
-- Reverse operation: `default.html` → `backup.html`, `temp.html` → `default.html`
-- Configurable folder paths
+- .NET 8 SDK
+- Windows PowerShell (for executing PowerShell scripts)
 
-## 📋 Requirements
+## How to Run
 
-- Windows Server with .NET 8.0 Runtime (or self-contained deployment)
-- PowerShell execution policy allowing remote execution
-- Network access to target servers
-- Appropriate credentials for remote server access
+1. Open a terminal in the project directory
+2. Run the following commands:
 
-## 🛠️ Deployment
+```bash
+dotnet restore
+dotnet run
+```
 
-### Option 1: Self-Contained Deployment (Recommended)
+3. Open your browser and navigate to `https://localhost:5001` or `http://localhost:5000`
 
-1. **Build the application:**
-   ```bash
-   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
-   ```
+## Configuration
 
-2. **Copy the published files to your Azure server:**
-   - Copy the entire `bin/Release/net8.0/win-x64/publish/` folder to your server
-   - The application will be completely standalone with no external dependencies
+The application is configured to check services on the local machine by default. You can modify the services and servers in the `PowerShellService.cs` file:
 
-3. **Run the application:**
-   ```bash
-   AzureServerManager.exe
-   ```
-
-4. **Access the web interface:**
-   - Open a web browser and navigate to `http://localhost:5000`
-   - The application will be available on the configured port
-
-### Option 2: Framework-Dependent Deployment
-
-1. **Ensure .NET 8.0 Runtime is installed on the server**
-
-2. **Build and deploy:**
-   ```bash
-   dotnet publish -c Release
-   ```
-
-3. **Copy files and run:**
-   ```bash
-   dotnet AzureServerManager.dll
-   ```
-
-## ⚙️ Configuration
-
-### Server Configuration
-
-Edit the server configurations in the following files:
-
-- **Main Servers**: `Services/ServerService.cs` - `_servers` list
-- **Indexing Servers**: `Services/ServerService.cs` - `_indexingServers` list  
-- **ThinClient Servers**: `Services/FileOperationService.cs` - `_thinClientServers` list
-
-Example server configuration:
 ```csharp
-new ServerConfig 
-{ 
-    Name = "Server1", 
-    IpAddress = "192.168.1.10", 
-    Username = "admin", 
-    Password = "password123",
-    Services = new List<string> { "Spooler", "Themes", "AudioSrv", "BITS" }
-}
-```
-
-### Port Configuration
-
-Edit `appsettings.json` to change the default port:
-```json
+var serversAndServices = new Dictionary<string, string[]>
 {
-  "Kestrel": {
-    "Endpoints": {
-      "Http": {
-        "Url": "http://localhost:5000"
-      }
-    }
-  }
-}
+    { Environment.MachineName, new[] { "spooler", "wuauserv", "bits", "wsearch" } }
+};
 ```
 
-## 🔧 Features
+## Project Structure
 
-### Real-Time Updates
-- Service status updates every 2 seconds via SignalR
-- Live status indicators with color coding
-- Automatic reconnection handling
+- `Program.cs` - Application entry point and configuration
+- `Services/PowerShellService.cs` - Service to execute PowerShell scripts
+- `Controllers/HomeController.cs` - Web controller for handling requests
+- `Views/Home/Index.cshtml` - Web interface
+- `Check-ServiceStatus.ps1` - PowerShell script for checking service status
 
-### Security
-- PowerShell remoting with secure credentials
-- No sensitive data exposed in the UI
-- Proper session cleanup after operations
+## Notes
 
-### User Interface
-- Modern, responsive design
-- Tabbed interface for different operations
-- Status notifications with auto-dismiss
-- Mobile-friendly layout
-
-## 📁 Project Structure
-
-```
-AzureServerManager/
-├── Controllers/
-│   └── ServiceController.cs          # API endpoints
-├── Models/
-│   └── ServerConfig.cs              # Data models
-├── Services/
-│   ├── ServerService.cs             # Service management logic
-│   └── FileOperationService.cs      # File operations logic
-├── Hubs/
-│   └── ServiceHub.cs                # SignalR hub for real-time updates
-├── wwwroot/
-│   ├── index.html                   # Main web interface
-│   ├── styles.css                   # Styling
-│   └── script.js                    # Frontend logic
-├── Program.cs                       # Application entry point
-├── appsettings.json                 # Configuration
-└── AzureServerManager.csproj        # Project file
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **PowerShell Execution Policy**
-   - Ensure PowerShell execution policy allows remote execution
-   - Run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine`
-
-2. **Network Connectivity**
-   - Verify network access to target servers
-   - Check firewall settings for PowerShell remoting (port 5985/5986)
-
-3. **Authentication**
-   - Ensure credentials have appropriate permissions on target servers
-   - Verify username/password combinations
-
-4. **Service Names**
-   - Use exact Windows service names
-   - Common services: "Spooler", "Themes", "AudioSrv", "BITS", "WSearch"
-
-### Logs
-- Check console output for detailed error messages
-- Application logs will show PowerShell execution results
-
-## 🚨 Security Notes
-
-- **Credentials**: Store credentials securely, consider using encrypted configuration
-- **Network**: Ensure the application runs on a secure network
-- **Access**: Limit access to authorized personnel only
-- **Updates**: Regularly update the application and dependencies
-
-## 📞 Support
-
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review console logs for error details
-3. Verify server configurations and network connectivity
-
-## 📄 License
-
-This project is provided as-is for internal use. Ensure compliance with your organization's security policies and Azure usage guidelines. 
+- The application requires PowerShell execution policy to be set to allow script execution
+- Make sure the `Check-ServiceStatus.ps1` file is in the same directory as the application
+- The web interface will automatically refresh every 10 seconds to show the latest service status 

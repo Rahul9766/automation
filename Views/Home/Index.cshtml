@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "Service Status Monitor";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Status Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .server-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .server-header {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+        .service-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .status {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status.running {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.notfound {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Service Status Monitor</h1>
+        <div id="loading" class="loading">Loading service status...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="content"></div>
+        <div id="lastUpdated" class="last-updated"></div>
+    </div>
+
+    <script>
+        function updateServiceStatus() {
+            fetch('/Home/GetServiceStatus')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    displayServices(data);
+                    hideError();
+                    updateLastUpdated();
+                })
+                .catch(error => {
+                    showError('Failed to fetch service status: ' + error.message);
+                });
+        }
+
+        function displayServices(services) {
+            const content = document.getElementById('content');
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'none';
+            
+            // Group services by server
+            const servers = {};
+            services.forEach(service => {
+                if (!servers[service.server]) {
+                    servers[service.server] = [];
+                }
+                servers[service.server].push(service);
+            });
+
+            let html = '';
+            Object.keys(servers).forEach(server => {
+                html += `
+                    <div class="server-section">
+                        <div class="server-header">Server: ${server}</div>
+                        <div class="services-grid">
+                `;
+                
+                servers[server].forEach(service => {
+                    const statusClass = service.status.toLowerCase();
+                    html += `
+                        <div class="service-card">
+                            <div class="service-name">${service.service}</div>
+                            <div class="status ${statusClass}">${service.status}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = html;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 
+                `Last updated: ${now.toLocaleTimeString()}`;
+        }
+
+        // Initial load
+        updateServiceStatus();
+
+        // Refresh every 10 seconds
+        setInterval(updateServiceStatus, 10000);
+    </script>
+</body>
+</html> 

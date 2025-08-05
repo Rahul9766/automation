@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Hy1uW/Lxb3ZgiB7cLrnT0sqYLrmlzVhfngKQFdv1E6A=",
+  "Source": "PowerShellWebApp",
+  "BasePath": "_content/PowerShellWebApp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
