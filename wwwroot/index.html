@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Server Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-server"></i> Azure Server Manager</h1>
+            <p>Standalone Web Application for Azure Windows Server Service Control & File Operations</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('service-management')">
+                <i class="fas fa-cogs"></i> Service Management
+            </button>
+            <button class="tab-button" onclick="showTab('indexing')">
+                <i class="fas fa-search"></i> Indexing
+            </button>
+            <button class="tab-button" onclick="showTab('thinclient')">
+                <i class="fas fa-desktop"></i> ThinClient Down
+            </button>
+        </div>
+
+        <!-- Service Management Tab -->
+        <div id="service-management" class="tab-content active">
+            <div class="section">
+                <h2><i class="fas fa-server"></i> Server Services</h2>
+                <div id="servers-container" class="servers-grid">
+                    <!-- Servers will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Indexing Tab -->
+        <div id="indexing" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-search"></i> Indexing Services</h2>
+                <div class="bulk-actions">
+                    <button class="btn btn-success" onclick="controlAllIndexingServices('start')">
+                        <i class="fas fa-play"></i> Start All Services
+                    </button>
+                    <button class="btn btn-danger" onclick="controlAllIndexingServices('stop')">
+                        <i class="fas fa-stop"></i> Stop All Services
+                    </button>
+                </div>
+                <div id="indexing-servers-container" class="servers-grid">
+                    <!-- Indexing servers will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ThinClient Tab -->
+        <div id="thinclient" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-desktop"></i> ThinClient File Operations</h2>
+                <div class="file-operations">
+                    <div class="input-group">
+                        <label for="folder-path">Folder Path:</label>
+                        <input type="text" id="folder-path" placeholder="C:\inetpub\wwwroot" value="C:\inetpub\wwwroot">
+                    </div>
+                    <div class="bulk-actions">
+                        <button class="btn btn-primary" onclick="performFileOperationOnAll('forward')">
+                            <i class="fas fa-arrow-right"></i> Forward Operation
+                        </button>
+                        <button class="btn btn-secondary" onclick="performFileOperationOnAll('reverse')">
+                            <i class="fas fa-arrow-left"></i> Reverse Operation
+                        </button>
+                    </div>
+                </div>
+                <div id="thinclient-servers-container" class="servers-grid">
+                    <!-- ThinClient servers will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status-messages" class="status-container"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 

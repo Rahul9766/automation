@@ -1,0 +1,57 @@
+{
+  "ServerConfigurations": {
+    "MainServers": [
+      {
+        "Name": "Server1",
+        "IpAddress": "192.168.1.10",
+        "Username": "admin",
+        "Password": "your_password_here",
+        "Services": ["Spooler", "Themes", "AudioSrv", "BITS"]
+      },
+      {
+        "Name": "Server2", 
+        "IpAddress": "192.168.1.11",
+        "Username": "admin",
+        "Password": "your_password_here",
+        "Services": ["Spooler", "Themes", "AudioSrv", "BITS"]
+      }
+    ],
+    "IndexingServers": [
+      {
+        "Name": "IndexServer1",
+        "IpAddress": "192.168.1.20",
+        "Username": "admin", 
+        "Password": "your_password_here",
+        "Services": ["WSearch", "Spooler", "Themes"]
+      },
+      {
+        "Name": "IndexServer2",
+        "IpAddress": "192.168.1.21",
+        "Username": "admin",
+        "Password": "your_password_here", 
+        "Services": ["WSearch", "Spooler", "Themes"]
+      }
+    ],
+    "ThinClientServers": [
+      {
+        "Name": "ThinClient1",
+        "IpAddress": "192.168.1.30",
+        "Username": "admin",
+        "Password": "your_password_here",
+        "Services": ["Spooler"]
+      },
+      {
+        "Name": "ThinClient2",
+        "IpAddress": "192.168.1.31", 
+        "Username": "admin",
+        "Password": "your_password_here",
+        "Services": ["Spooler"]
+      }
+    ]
+  },
+  "ApplicationSettings": {
+    "Port": 5000,
+    "StatusRefreshInterval": 2000,
+    "DefaultFolderPath": "C:\\inetpub\\wwwroot"
+  }
+} 
