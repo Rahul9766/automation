@@ -24,7 +24,3 @@ C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\refint\PowerShellWebAp
 C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\PowerShellWebApp.pdb
 C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\PowerShellWebApp.genruntimeconfig.cache
 C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\ref\PowerShellWebApp.dll
-C:\Users\rbhuj\Downloads\BH_AUTO\Project\bin\Debug\net8.0\System.ServiceProcess.ServiceController.dll
-C:\Users\rbhuj\Downloads\BH_AUTO\Project\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.ServiceProcess.ServiceController.dll
-C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\PowerShellWebApp.csproj.AssemblyReference.cache
-C:\Users\rbhuj\Downloads\BH_AUTO\Project\obj\Debug\net8.0\PowerShe.A0203760.Up2Date

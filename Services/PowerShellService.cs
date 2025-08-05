@@ -1,4 +1,4 @@
-using System.ServiceProcess;
+using System.Diagnostics;
 
 namespace PowerShellWebApp.Services;
 
@@ -14,13 +14,13 @@ public class PowerShellService
             { "DESKTOP-CH5B0I4", new[] { "AsusAppService" } }
         };
 
-        // Use built-in .NET ServiceController for fast, reliable service status
-        results = GetServicesUsingDotNet(serversAndServices);
+        // Use PowerShell command for service status
+        results = GetServicesUsingPowerShell(serversAndServices);
 
         return Task.FromResult(results);
     }
 
-    private List<ServiceStatus> GetServicesUsingDotNet(Dictionary<string, string[]> serversAndServices)
+    private List<ServiceStatus> GetServicesUsingPowerShell(Dictionary<string, string[]> serversAndServices)
     {
         var results = new List<ServiceStatus>();
 
@@ -30,12 +30,47 @@ public class PowerShellService
             {
                 try
                 {
-                    using var serviceController = new ServiceController(service);
+                    // Use PowerShell to get service status
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = "powershell.exe",
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"Get-Service -Name '{service}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status\"",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    using var process = new Process { StartInfo = startInfo };
+                    process.Start();
+                    
+                    // Add timeout to prevent hanging
+                    if (!process.WaitForExit(5000)) // 5 second timeout
+                    {
+                        try { process.Kill(); } catch { }
+                        results.Add(new ServiceStatus
+                        {
+                            Server = server,
+                            Service = service,
+                            Status = "Timeout"
+                        });
+                        continue;
+                    }
+                    
+                    var output = process.StandardOutput.ReadToEnd().Trim();
+                    var status = "NotFound";
+                    
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        // The output should be the direct status value
+                        status = output;
+                    }
+
                     results.Add(new ServiceStatus
                     {
                         Server = server,
                         Service = service,
-                        Status = serviceController.Status.ToString()
+                        Status = status
                     });
                 }
                 catch (Exception)
